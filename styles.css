@@ -75,6 +75,7 @@ body {
     width: 100%;
     max-width: 500px;
     margin: 0 auto;
+    position: relative; /* Add this for absolute positioning of overlay */
 }
 
 .face-image {
@@ -84,6 +85,25 @@ body {
     height: auto;
     object-fit: contain;
     border-radius: 4px;
+}
+
+.wrong-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 3rem;
+    font-weight: bold;
+    color: #ff0000;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.wrong-message.show {
+    opacity: 1;
 }
 
 /* Game Controls */

@@ -20,6 +20,7 @@ const nameBottom = document.getElementById('nameBottom');
 const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('highScore');
 const playAgainBtn = document.getElementById('playAgain');
+const wrongMessage = document.getElementById('wrongMessage');
 
 // Disable hard mode button
 hardModeBtn.disabled = true;
@@ -50,9 +51,17 @@ function handleNameClick(isTopName) {
         score += 1;
         // Add current person to used images if correct
         usedImages.add(currentPerson.id);
+        // Hide wrong message if it was showing
+        wrongMessage.classList.remove('show');
     } else {
         score -= 1;
         // Don't add to used images if incorrect
+        // Show wrong message
+        wrongMessage.classList.add('show');
+        // Hide wrong message after 1 second
+        setTimeout(() => {
+            wrongMessage.classList.remove('show');
+        }, 500);
     }
     
     // Update score display
