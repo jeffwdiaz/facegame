@@ -8,6 +8,10 @@ let currentMode = 'easy'; // 'easy' or 'hard'
 let score = 10;
 let highScore = 0;
 let correctNameOnTop = false; // Track which name is correct
+let gameTimer = null;
+let highestScoreThisGame = 0;
+let lastClickTime = 0; // Track the last time a click was registered
+const CLICK_BUFFER_TIME = 500; // Buffer time in milliseconds
 
 // DOM Elements
 const faceImage = document.getElementById('faceImage');
@@ -47,6 +51,16 @@ async function loadGameData() {
 // Handle name click
 function handleNameClick(isTopName) {
     if (!gameStarted) return;
+    
+    // Check if enough time has passed since the last click
+    const currentTime = Date.now();
+    if (currentTime - lastClickTime < CLICK_BUFFER_TIME) {
+        console.log('Click buffered - too soon after last click');
+        return; // Ignore this click
+    }
+    
+    // Update the last click time
+    lastClickTime = currentTime;
     
     const isCorrect = (isTopName === correctNameOnTop);
     
@@ -151,10 +165,24 @@ function startGame() {
     gameStarted = true;
     usedImages.clear(); // Reset used images when starting a new game
     score = 10; // Reset score
+    highestScoreThisGame = 10; // Reset highest score for this game
+    lastClickTime = 0; // Reset the last click time
     updateScore();
     selectRandomPerson();
     startGameBtn.textContent = 'Next Person';
     startGameBtn.onclick = selectRandomPerson;
+    
+    // Start the timer that decreases score every second
+    if (gameTimer) clearInterval(gameTimer);
+    gameTimer = setInterval(() => {
+        score -= 1;
+        updateScore();
+        
+        // Check for game over
+        if (score <= 0) {
+            gameOver();
+        }
+    }, 1000);
 }
 
 function resetGame() {
@@ -165,18 +193,41 @@ function resetGame() {
     faceImage.src = 'placeholder.jpg';
     nameTop.textContent = '';
     nameBottom.textContent = '';
+    
+    // Clear the timer
+    if (gameTimer) {
+        clearInterval(gameTimer);
+        gameTimer = null;
+    }
 }
 
 function updateScore() {
     scoreDisplay.textContent = score;
+    
+    // Update highest score if current score is higher
+    if (score > highestScoreThisGame) {
+        highestScoreThisGame = score;
+    }
 }
 
 function gameOver() {
-    if (score > highScore) {
-        highScore = score;
+    // Clear the timer
+    if (gameTimer) {
+        clearInterval(gameTimer);
+        gameTimer = null;
+    }
+    
+    // Update global high score if this game's highest score is higher
+    if (highestScoreThisGame > highScore) {
+        highScore = highestScoreThisGame;
         highScoreDisplay.textContent = highScore;
     }
+    
+    // Display the highest score achieved in this game
+    highScoreDisplay.textContent = highestScoreThisGame;
+    
     gameOverModal.classList.remove('hidden');
+    gameStarted = false;
 }
 
 // Mode selection
@@ -243,7 +294,17 @@ faceContainer.addEventListener('touchend', (e) => {
     
     const swipeDistance = touchEndY - touchStartY;
     
+    // Check if enough time has passed since the last click
+    const currentTime = Date.now();
+    if (currentTime - lastClickTime < CLICK_BUFFER_TIME) {
+        console.log('Swipe buffered - too soon after last interaction');
+        return; // Ignore this swipe
+    }
+    
     if (Math.abs(swipeDistance) >= SWIPE_THRESHOLD) {
+        // Update the last click time
+        lastClickTime = currentTime;
+        
         if (swipeDistance < 0) {
             handleNameClick(true);
         } else {
