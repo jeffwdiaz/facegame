@@ -76,6 +76,8 @@ body {
     max-width: 500px;
     margin: 0 auto;
     position: relative; /* Add this for absolute positioning of overlay */
+    touch-action: none; /* Prevent browser handling of touch events */
+    user-select: none; /* Prevent text selection during swipes */
 }
 
 .face-image {
@@ -85,6 +87,7 @@ body {
     height: auto;
     object-fit: contain;
     border-radius: 4px;
+    transition: transform 0.2s ease; /* Add smooth transition for transform */
 }
 
 .wrong-message {
@@ -217,4 +220,13 @@ body {
         max-width: 500px;
         margin: 0 auto;
     }
+}
+
+/* Add these new styles at the end of the file */
+.face-container.swiping-up .face-image {
+    transform: translateY(-20px);
+}
+
+.face-container.swiping-down .face-image {
+    transform: translateY(20px);
 } 

@@ -21,6 +21,10 @@ const scoreDisplay = document.getElementById('score');
 const highScoreDisplay = document.getElementById('highScore');
 const playAgainBtn = document.getElementById('playAgain');
 const wrongMessage = document.getElementById('wrongMessage');
+const faceContainer = document.querySelector('.face-container');
+let touchStartY = 0;
+let touchEndY = 0;
+const SWIPE_THRESHOLD = 50; // Minimum distance for a swipe
 
 // Disable hard mode button
 hardModeBtn.disabled = true;
@@ -206,6 +210,52 @@ playAgainBtn.addEventListener('click', () => {
 // Add click listeners for names
 nameTop.addEventListener('click', () => handleNameClick(true));
 nameBottom.addEventListener('click', () => handleNameClick(false));
+
+// Touch event handlers
+faceContainer.addEventListener('touchstart', (e) => {
+    if (!gameStarted) return;
+    touchStartY = e.touches[0].clientY;
+});
+
+faceContainer.addEventListener('touchmove', (e) => {
+    if (!gameStarted) return;
+    e.preventDefault();
+    
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - touchStartY;
+    
+    // Add visual feedback based on swipe direction
+    if (deltaY < -20) {
+        faceContainer.classList.add('swiping-up');
+        faceContainer.classList.remove('swiping-down');
+    } else if (deltaY > 20) {
+        faceContainer.classList.add('swiping-down');
+        faceContainer.classList.remove('swiping-up');
+    }
+});
+
+faceContainer.addEventListener('touchend', (e) => {
+    if (!gameStarted) return;
+    touchEndY = e.changedTouches[0].clientY;
+    
+    // Remove swipe classes
+    faceContainer.classList.remove('swiping-up', 'swiping-down');
+    
+    const swipeDistance = touchEndY - touchStartY;
+    
+    if (Math.abs(swipeDistance) >= SWIPE_THRESHOLD) {
+        if (swipeDistance < 0) {
+            handleNameClick(true);
+        } else {
+            handleNameClick(false);
+        }
+    }
+});
+
+// Add touchcancel handler to reset state
+faceContainer.addEventListener('touchcancel', () => {
+    faceContainer.classList.remove('swiping-up', 'swiping-down');
+});
 
 // Initialize game
 loadGameData();
