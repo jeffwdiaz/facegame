@@ -12,6 +12,10 @@ let gameTimer = null;
 let highestScoreThisGame = 0;
 let lastClickTime = 0; // Track the last time a click was registered
 const CLICK_BUFFER_TIME = 500; // Buffer time in milliseconds
+let imageCache = new Set(); // Track which images have been loaded
+let imageLoadingPromises = new Map(); // Track image loading promises
+let preloadedImages = new Set(); // Track preloaded images
+const PRELOAD_COUNT = 5; // Number of images to preload
 
 // DOM Elements
 const faceImage = document.getElementById('faceImage');
@@ -33,6 +37,18 @@ const SWIPE_THRESHOLD = 50; // Minimum distance for a swipe
 // Disable hard mode button
 hardModeBtn.disabled = true;
 
+// Add after the DOM Elements section
+const loadingIndicator = document.createElement('div');
+loadingIndicator.className = 'loading-indicator';
+loadingIndicator.textContent = 'Loading...';
+faceContainer.appendChild(loadingIndicator);
+
+// Add progress indicator
+const progressIndicator = document.createElement('div');
+progressIndicator.className = 'progress-indicator';
+progressIndicator.textContent = 'Loading images: 0%';
+faceContainer.appendChild(progressIndicator);
+
 // Load game data
 async function loadGameData() {
     try {
@@ -42,10 +58,72 @@ async function loadGameData() {
         }
         gameData = await response.json();
         console.log('Game data loaded:', gameData);
+        
+        // Start preloading initial images
+        const totalImages = gameData.people.length;
+        let loadedImages = 0;
+        
+        // Update progress indicator
+        progressIndicator.textContent = `Loading images: ${Math.round((loadedImages / totalImages) * 100)}%`;
+        
+        // Preload first batch of images
+        await preloadNextImages();
+        loadedImages = preloadedImages.size;
+        progressIndicator.textContent = `Loading images: ${Math.round((loadedImages / totalImages) * 100)}%`;
+        
+        // Enable start button once initial images are loaded
+        startGameBtn.disabled = false;
     } catch (error) {
         console.error('Error loading game data:', error);
         alert('Failed to load game data. Please refresh the page.');
     }
+}
+
+// Add new function for image loading
+async function loadImage(imagePath) {
+    // Return cached promise if image is already loading
+    if (imageLoadingPromises.has(imagePath)) {
+        return imageLoadingPromises.get(imagePath);
+    }
+
+    // Create new promise for image loading
+    const loadPromise = new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => {
+            imageCache.add(imagePath);
+            imageLoadingPromises.delete(imagePath);
+            resolve(img);
+        };
+        img.onerror = () => {
+            console.error('Failed to load image:', imagePath);
+            imageLoadingPromises.delete(imagePath);
+            reject(new Error(`Failed to load image: ${imagePath}`));
+        };
+        img.src = imagePath;
+    });
+
+    imageLoadingPromises.set(imagePath, loadPromise);
+    return loadPromise;
+}
+
+// Add new function for preloading images
+async function preloadNextImages() {
+    const availablePeople = gameData.people.filter(person => !usedImages.has(person.id));
+    if (availablePeople.length === 0) return;
+
+    const preloadCount = Math.min(PRELOAD_COUNT, availablePeople.length);
+    const preloadPromises = [];
+
+    for (let i = 0; i < preloadCount; i++) {
+        const randomIndex = Math.floor(Math.random() * availablePeople.length);
+        const person = availablePeople[randomIndex];
+        if (!preloadedImages.has(person.id)) {
+            preloadPromises.push(loadImage(`images/${person.image}`));
+            preloadedImages.add(person.id);
+        }
+    }
+
+    await Promise.all(preloadPromises);
 }
 
 // Handle name click
@@ -96,7 +174,11 @@ function handleNameClick(isTopName) {
 }
 
 // Image selection function
-function selectRandomPerson() {
+async function selectRandomPerson() {
+    // Show loading indicator
+    loadingIndicator.style.display = 'block';
+    faceImage.style.display = 'none';
+
     // Get available people (excluding used images)
     const availablePeople = gameData.people.filter(person => !usedImages.has(person.id));
     
@@ -138,15 +220,22 @@ function selectRandomPerson() {
         }
     }
     
-    // Set the current person's image
-    currentImage = `images/${currentPerson.image}`;
-    faceImage.src = currentImage;
-    
-    // Handle image loading errors
-    faceImage.onerror = () => {
-        console.error('Failed to load image:', currentImage);
+    try {
+        // Set the current person's image
+        currentImage = `images/${currentPerson.image}`;
+        await loadImage(currentImage);
+        faceImage.src = currentImage;
+        faceImage.style.display = 'block';
+        loadingIndicator.style.display = 'none';
+        
+        // Start preloading next batch of images
+        preloadNextImages();
+    } catch (error) {
+        console.error('Error loading image:', error);
         faceImage.src = 'placeholder.jpg';
-    };
+        faceImage.style.display = 'block';
+        loadingIndicator.style.display = 'none';
+    }
     
     // Log for debugging
     console.log('Selected person:', currentPerson);
@@ -154,35 +243,40 @@ function selectRandomPerson() {
     console.log('Current mode:', currentMode);
     console.log('Correct name on top:', correctNameOnTop);
     console.log('Used images:', Array.from(usedImages));
-    console.log('Displayed names:', {
-        top: nameTop.textContent,
-        bottom: nameBottom.textContent
-    });
+    console.log('Preloaded images:', Array.from(preloadedImages));
 }
 
 // Game control functions
 function startGame() {
+    // Reset game state
+    usedImages.clear();
+    preloadedImages.clear();
+    score = 10;
+    highestScoreThisGame = 0;
     gameStarted = true;
-    usedImages.clear(); // Reset used images when starting a new game
-    score = 10; // Reset score
-    highestScoreThisGame = 10; // Reset highest score for this game
-    lastClickTime = 0; // Reset the last click time
-    updateScore();
-    selectRandomPerson();
-    startGameBtn.textContent = 'Next Person';
-    startGameBtn.onclick = selectRandomPerson;
+    lastClickTime = 0;
     
-    // Start the timer that decreases score every second
+    // Hide game controls and show game elements
+    document.querySelector('.game-controls').style.display = 'none';
+    document.querySelector('.game-area').style.display = 'flex';
+    document.querySelector('.game-header').style.display = 'flex';
+    
+    updateScore();
+    gameOverModal.style.display = 'none';
+    
+    // Start the game
+    selectRandomPerson();
+    
+    // Start the timer
     if (gameTimer) clearInterval(gameTimer);
     gameTimer = setInterval(() => {
-        score -= 1;
-        updateScore();
-        
-        // Check for game over
-        if (score <= 0) {
+        if (score > 0) {
+            score -= 1;
+            updateScore();
+        } else {
             gameOver();
         }
-    }, 1000);
+    }, 2000);
 }
 
 function resetGame() {
@@ -193,6 +287,11 @@ function resetGame() {
     faceImage.src = 'placeholder.jpg';
     nameTop.textContent = '';
     nameBottom.textContent = '';
+    
+    // Show game controls and hide game elements
+    document.querySelector('.game-controls').style.display = 'flex';
+    document.querySelector('.game-area').style.display = 'none';
+    document.querySelector('.game-header').style.display = 'none';
     
     // Clear the timer
     if (gameTimer) {
@@ -226,7 +325,9 @@ function gameOver() {
     // Display the highest score achieved in this game
     highScoreDisplay.textContent = highestScoreThisGame;
     
+    // Show the game over modal
     gameOverModal.classList.remove('hidden');
+    gameOverModal.style.display = 'flex';
     gameStarted = false;
 }
 
@@ -255,6 +356,7 @@ hardModeBtn.addEventListener('click', () => {
 
 playAgainBtn.addEventListener('click', () => {
     gameOverModal.classList.add('hidden');
+    gameOverModal.style.display = 'none';
     startGame();
 });
 
