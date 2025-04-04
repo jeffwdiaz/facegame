@@ -1,7 +1,7 @@
 /* Reset and Base Styles */
 :root {
     /* Main Colors */
-    --color-primary: #007bff;
+    --color-primary: #222;
     --color-primary-dark: #0056b3;
     --color-secondary: #6c757d;
     --color-secondary-dark: #545b62;
@@ -45,7 +45,7 @@ body {
 
 /* Game Container */
 .game-container {
-    background-color: var(--color-primary);
+    background-color: ;
     max-width: 100%;
     width: 500px;
     height: 100vh;
@@ -98,7 +98,7 @@ body {
     align-items: center;
     justify-content: center;
     background-color: var(--color-background);
-    overflow: hidden;
+    overflow: visible;
     height: 56vh;
     width: 100%;
     position: relative;
@@ -106,13 +106,18 @@ body {
     user-select: none;
     margin-top: 1em;
     margin-bottom: 1rem;
+    z-index: 1;
 }
 
 .face-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease, opacity 0.3s ease;
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
 }
 
 .wrong-message {
@@ -141,16 +146,21 @@ body {
     gap: 0.25rem;
     padding: 0.5rem;
     background-color: var(--color-background);
-    height: 20vh;
-    justify-content: space-between;
+    height: 100%;
+    justify-content: flex-end;
 }
 
 .mode-selector {
     display: flex;
-    gap: 0.5rem;
+    gap: 1.0rem;
     justify-content: center;
-    margin-top: auto;
+    margin-top: .5rem;
     padding-bottom: 1rem;
+}
+
+#startGame {
+    align-self: flex-end;
+    margin-bottom: .5rem;
 }
 
 /* Buttons */
@@ -181,7 +191,7 @@ body {
 }
 
 .btn-primary.active, .btn-secondary.active {
-    transform: scale(1.05);
+    transform: scale(1);
 }
 
 .btn-primary.active {
@@ -290,9 +300,54 @@ body {
 
 /* Swipe Animations */
 .face-container.swiping-up .face-image {
-    transform: translateY(-100px);
+    transform: translateY(-150%);
+    transition-duration: 1s;
 }
 
 .face-container.swiping-down .face-image {
-    transform: translateY(100px);
+    transform: translateY(150%);
+    transition-duration: 1s;
+}
+
+/* New image entering animations */
+.face-container.swiping-up .face-image.next {
+    transform: translateY(-150%);
+    transition-duration: 1s;
+}
+
+.face-container.swiping-down .face-image.next {
+    transform: translateY(150%);
+    transition-duration: 1s;
+}
+
+/* Leaderboard */
+.leaderboard {
+    background-color: var(--color-background);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.leaderboard-title {
+    font-family: var(--font-game);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.leaderboard-item {
+    font-family: var(--font-game);
+    font-size: 1.rem;
+    color: var(--color-text);
+    padding: 0.1rem;
+    padding-left: 1rem;
+    background-color: var(--color-surface);
+    text-align: left;
 } 

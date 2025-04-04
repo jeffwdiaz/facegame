@@ -11,7 +11,9 @@ let correctNameOnTop = false; // Track which name is correct
 let gameTimer = null;
 let highestScoreThisGame = 0;
 let lastClickTime = 0; // Track the last time a click was registered
+let lastSwipeTime = 0; // Track the last time a swipe was registered
 const CLICK_BUFFER_TIME = 500; // Buffer time in milliseconds
+const SWIPE_BUFFER_TIME = 300; // Buffer time for swipes (shorter than click buffer)
 let imageCache = new Set(); // Track which images have been loaded
 let imageLoadingPromises = new Map(); // Track image loading promises
 let preloadedImages = new Set(); // Track preloaded images
@@ -221,10 +223,26 @@ async function selectRandomPerson() {
     }
     
     try {
-        // Set the current person's image
-        currentImage = `images/${currentPerson.image}`;
-        await loadImage(currentImage);
-        faceImage.src = currentImage;
+        // Create new image element for the next image
+        const nextImage = document.createElement('img');
+        nextImage.className = 'face-image next';
+        nextImage.src = `images/${currentPerson.image}`;
+        faceContainer.appendChild(nextImage);
+
+        // Wait for the new image to load
+        await loadImage(`images/${currentPerson.image}`);
+        
+        // Wait for the animation to complete before removing the old image
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Match the 1s animation duration
+        
+        // Remove the old image after transition
+        if (faceImage.parentNode) {
+            faceImage.parentNode.removeChild(faceImage);
+        }
+
+        // Update the current image reference
+        faceImage = nextImage;
+        faceImage.classList.remove('next');
         faceImage.style.display = 'block';
         loadingIndicator.style.display = 'none';
         
@@ -255,6 +273,7 @@ function startGame() {
     highestScoreThisGame = 0;
     gameStarted = true;
     lastClickTime = 0;
+    lastSwipeTime = 0;
     
     // Hide game controls and show game elements
     document.querySelector('.game-controls').style.display = 'none';
@@ -368,6 +387,7 @@ nameBottom.addEventListener('click', () => handleNameClick(false));
 faceContainer.addEventListener('touchstart', (e) => {
     if (!gameStarted) return;
     touchStartY = e.touches[0].clientY;
+    console.log('Touch started at Y:', touchStartY);
 });
 
 faceContainer.addEventListener('touchmove', (e) => {
@@ -376,6 +396,7 @@ faceContainer.addEventListener('touchmove', (e) => {
     
     const currentY = e.touches[0].clientY;
     const deltaY = currentY - touchStartY;
+    console.log('Touch moving - Delta Y:', deltaY);
     
     // Add visual feedback based on swipe direction
     if (deltaY < -20) {
@@ -390,28 +411,34 @@ faceContainer.addEventListener('touchmove', (e) => {
 faceContainer.addEventListener('touchend', (e) => {
     if (!gameStarted) return;
     touchEndY = e.changedTouches[0].clientY;
+    const swipeDistance = touchEndY - touchStartY;
+    console.log('Touch ended - Final Y:', touchEndY, 'Swipe distance:', swipeDistance);
     
     // Remove swipe classes
     faceContainer.classList.remove('swiping-up', 'swiping-down');
     
-    const swipeDistance = touchEndY - touchStartY;
-    
-    // Check if enough time has passed since the last click
+    // Check if enough time has passed since the last swipe
     const currentTime = Date.now();
-    if (currentTime - lastClickTime < CLICK_BUFFER_TIME) {
-        console.log('Swipe buffered - too soon after last interaction');
+    if (currentTime - lastSwipeTime < SWIPE_BUFFER_TIME) {
+        console.log('Swipe buffered - too soon after last swipe');
         return; // Ignore this swipe
     }
     
     if (Math.abs(swipeDistance) >= SWIPE_THRESHOLD) {
-        // Update the last click time
-        lastClickTime = currentTime;
+        // Update the last swipe time
+        lastSwipeTime = currentTime;
         
         if (swipeDistance < 0) {
+            // Swiping up means selecting the top name
+            console.log('Swiping up - selecting top name');
             handleNameClick(true);
         } else {
+            // Swiping down means selecting the bottom name
+            console.log('Swiping down - selecting bottom name');
             handleNameClick(false);
         }
+    } else {
+        console.log('Swipe distance too small:', swipeDistance);
     }
 });
 
