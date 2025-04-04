@@ -3,71 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FaceGame - Match Faces to Names</title>
+    <title>Faces</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/css/main.css">
 </head>
 <body>
     <div class="game-container">
-        <!-- Leaderboard -->
-        <div class="leaderboard">
-            <h2 class="leaderboard-title">Leaderboard</h2>
-            <div class="leaderboard-list">
-                <div class="leaderboard-item">1. Player One - 100</div>
-                <div class="leaderboard-item">2. Player Two - 95</div>
-                <div class="leaderboard-item">3. Player Three - 90</div>
-                <div class="leaderboard-item">4. Player Four - 85</div>
-                <div class="leaderboard-item">5. Player Five - 80</div>
-                <div class="leaderboard-item">6. Player Six - 75</div>
-                <div class="leaderboard-item">7. Player Seven - 70</div>
-                <div class="leaderboard-item">8. Player Eight - 65</div>
-                <div class="leaderboard-item">9. Player Nine - 60</div>
-                <div class="leaderboard-item">10. Player Ten - 55</div>
-            </div>
-        </div>
-
-        <!-- Game Header -->
-        <header class="game-header">
-            <div class="score">Score: <span id="score">0</span></div>
-            <div class="high-score">High Score: <span id="highScore">0</span></div>
-        </header>
-
-        <!-- Main Game Area -->
-        <main class="game-area">
-            <!-- Name above image -->
-            <div class="name-top" id="nameTop">Name 1</div>
-            
-            <!-- Face Image Container -->
-            <div class="face-container">
-                <img src="placeholder.jpg" alt="Face" id="faceImage" class="face-image">
-                <div id="wrongMessage" class="wrong-message">Wrong</div>
-            </div>
-            
-            <!-- Name below image -->
-            <div class="name-bottom" id="nameBottom">Name 2</div>
-        </main>
-
-        <!-- Game Controls -->
-        <div class="game-controls">
-            <button id="startGame" class="btn-primary">Start Game</button>
-            <div class="mode-selector">
-                <button id="easyMode" class="btn-secondary">Easy Mode</button>
-                <button id="hardMode" class="btn-secondary">Hard Mode</button>
-            </div>
-        </div>
-
-        <!-- Game Over Modal -->
-        <div id="gameOverModal" class="modal hidden">
-            <div class="modal-content">
-                <h2>Game Over!</h2>
-                <p>Your highest score: <span id="highScore">0</span></p>
-                <button id="playAgain" class="btn-primary">Play Again</button>
-            </div>
-        </div>
+        <!-- Screens will be dynamically inserted here -->
     </div>
-    <script src="game.js"></script>
+    <script type="module" src="src/js/main.js"></script>
 </body>
 </html> 
