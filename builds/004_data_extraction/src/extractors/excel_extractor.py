@@ -22,47 +22,55 @@ It will provide the following functionality:
 
 import pandas as pd
 from typing import Dict, Any
-from ..main import BaseExtractor
+import datetime
+
+# Import the base class from its new location
+from .base_extractor import BaseExtractor
 
 class ExcelExtractor(BaseExtractor):
     """
     Concrete implementation of BaseExtractor for Excel files.
+    This extracts data from the first sheet of the Excel file.
     """
     def extract_data(self, file_path: str) -> Dict[str, Any]:
         """
-        Extract data from an Excel file.
+        Extract data from the first sheet of an Excel file.
         
         Args:
-            file_path (str): Path to the Excel file
+            file_path (str): Path to the Excel file (.xls or .xlsx).
             
         Returns:
-            Dict[str, Any]: Extracted data in a standardized format
+            Dict[str, Any]: Extracted data including headers, rows, and row count.
+            
+        Raises:
+            ValueError: If the file cannot be read or processed as Excel.
+            FileNotFoundError: If the Excel file does not exist.
         """
         try:
-            # Read the Excel file
-            excel_file = pd.ExcelFile(file_path)
+            # Read the first sheet of the Excel file using pandas
+            # Requires openpyxl for .xlsx or xlrd for .xls
+            df = pd.read_excel(file_path, sheet_name=0) # sheet_name=0 reads the first sheet
             
-            # Extract data from each sheet
-            sheets_data = {}
-            for sheet_name in excel_file.sheet_names:
-                df = pd.read_excel(excel_file, sheet_name=sheet_name)
-                sheets_data[sheet_name] = {
-                    "headers": df.columns.tolist(),
-                    "rows": df.values.tolist(),
-                    "row_count": len(df)
-                }
-            
-            # Create the output structure
+            # Convert DataFrame to a dictionary format
             data = {
-                "sheets": sheets_data,
-                "sheet_count": len(sheets_data)
+                "headers": df.columns.tolist(), # List of column names
+                "rows": df.values.tolist(),    # List of lists (rows)
+                "row_count": len(df)           # Number of data rows
             }
             
-            # Update metadata
+            # Update metadata specific to Excel extraction
             self.metadata["file_type"] = "excel"
-            self.metadata["extracted_at"] = pd.Timestamp.now()
+            self.metadata["extracted_at"] = datetime.datetime.now().isoformat() # Record timestamp
+            self.metadata["sheet_name"] = df.attrs.get('sheet_name', 0) # Store sheet name/index if available
+            self.metadata["columns"] = df.columns.tolist() # Add column names
+            self.metadata["shape"] = df.shape # Add DataFrame shape (rows, cols)
             
             return data
-            
+
+        except FileNotFoundError:
+            # Handle file not found specifically
+            raise FileNotFoundError(f"Excel file not found at: {file_path}")
         except Exception as e:
-            raise ValueError(f"Error extracting data from Excel file: {str(e)}") 
+            # Catch other potential errors (e.g., invalid format, password-protected)
+            # Consider adding more specific error handling for libraries like openpyxl or xlrd if needed
+            raise ValueError(f"Error extracting data from Excel file '{file_path}': {str(e)}") 

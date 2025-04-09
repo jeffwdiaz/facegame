@@ -1,0 +1,99 @@
+{
+    "data": {
+        "headers": [
+            " Item Code",
+            " CPC Code",
+            " Item"
+        ],
+        "rows": [
+            [
+                1017,
+                "'21116",
+                "Meat of goat; fresh or chilled"
+            ],
+            [
+                1020,
+                "'02292",
+                "Raw milk of goats"
+            ],
+            [
+                1035,
+                "'21113.01",
+                "Meat of pig with the bone; fresh or chilled"
+            ],
+            [
+                1058,
+                "'21121",
+                "Meat of chickens; fresh or chilled"
+            ],
+            [
+                1062,
+                "'0231",
+                "Hen eggs in shell; fresh"
+            ],
+            [
+                1130,
+                "'02293",
+                "Raw milk of camel"
+            ],
+            [
+                1718,
+                "'F1718",
+                "Cereals excluding rice"
+            ],
+            [
+                27,
+                "'0113",
+                "Rice"
+            ],
+            [
+                867,
+                "'21111.01",
+                "Meat of cattle with the bone; fresh or chilled"
+            ],
+            [
+                882,
+                "'02211",
+                "Raw milk of cattle"
+            ],
+            [
+                947,
+                "'21112",
+                "Meat of buffalo; fresh or chilled"
+            ],
+            [
+                951,
+                "'02212",
+                "Raw milk of buffalo"
+            ],
+            [
+                977,
+                "'21115",
+                "Meat of sheep; fresh or chilled"
+            ],
+            [
+                982,
+                "'02291",
+                "Raw milk of sheep"
+            ]
+        ],
+        "row_count": 14
+    },
+    "metadata": {
+        "extractor_type": "CSVExtractor",
+        "created_at": "2025-04-08T21:35:50.894807",
+        "file_type": "csv",
+        "extracted_at": "2025-04-08T21:35:50.895900",
+        "columns": [
+            " Item Code",
+            " CPC Code",
+            " Item"
+        ],
+        "shape": [
+            14,
+            3
+        ],
+        "extraction_time_seconds": 0.001,
+        "original_filename": "Environment_Emissions_intensities_E_ItemCodes.csv"
+    }
+}

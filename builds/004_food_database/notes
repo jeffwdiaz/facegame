@@ -1,0 +1,93 @@
+# TODO
+Huggin Face
+
+# Project Structure
+
+1. **`models/`**
+   - This directory contains the core data structures and schemas for your documents
+   - Files typically include:
+     - Document schemas (e.g., `user.schema.ts`, `product.schema.ts`)
+     - Model classes that represent your database entities
+     - Validation rules and constraints
+     - Example: A user model might define fields like `id`, `name`, `email`, and their types
+   - These files define the structure and rules for your documents
+
+2. **`repositories/`**
+   - This is where all direct database interactions happen
+   - Files typically include:
+     - CRUD (Create, Read, Update, Delete) operations
+     - Query builders
+     - Database connection management
+     - Example: `user.repository.ts` might contain methods like:
+       ```typescript
+       findById(id: string)
+       create(user: User)
+       update(id: string, data: Partial<User>)
+       delete(id: string)
+       ```
+   - These files abstract away the database implementation details
+
+3. **`services/`**
+   - Contains business logic and complex operations
+   - Files typically include:
+     - Business rules and validations
+     - Complex data processing
+     - Integration with other services
+     - Example: `user.service.ts` might contain methods like:
+       ```typescript
+       registerUser(userData: UserInput)
+       updateUserProfile(userId: string, profileData: ProfileData)
+       handleUserDeletion(userId: string)
+       ```
+   - These files implement the business requirements and orchestrate operations
+
+4. **`types/`**
+   - Contains TypeScript type definitions and interfaces
+   - Files typically include:
+     - Type definitions for database entities
+     - Input/output types for API endpoints
+     - Shared type definitions
+     - Example: `user.types.ts` might contain:
+       ```typescript
+       interface User {
+         id: string;
+         name: string;
+         email: string;
+         createdAt: Date;
+       }
+       
+       type UserInput = Omit<User, 'id' | 'createdAt'>;
+       ```
+   - These files ensure type safety across your application
+
+5. **`utils/`**
+   - Contains helper functions and utilities
+   - Files typically include:
+     - Database connection utilities
+     - Query builders
+     - Data transformation functions
+     - Error handling utilities
+     - Example: `db.utils.ts` might contain:
+       ```typescript
+       createDatabaseConnection()
+       buildQuery(filter: FilterOptions)
+       handleDatabaseError(error: Error)
+       ```
+   - These files provide reusable functionality across the database layer
+
+**Typical File Flow:**
+1. A request comes in through an API endpoint
+2. The service layer (`services/`) receives the request
+3. The service uses the repository layer (`repositories/`) to interact with the database
+4. The repository uses models (`models/`) to validate and structure the data
+5. Types (`types/`) ensure type safety throughout the process
+6. Utilities (`utils/`) provide helper functions where needed
+
+This structure follows the separation of concerns principle:
+- Models define what the data looks like
+- Repositories handle how to store/retrieve data
+- Services implement what to do with the data
+- Types ensure type safety
+- Utils provide reusable functionality
+
+Would you like me to elaborate on any specific aspect of these folders or provide more concrete examples for your use case?

@@ -22,8 +22,10 @@ It will provide the following functionality:
 
 import json
 from typing import Dict, Any
-from datetime import datetime
-from ..main import BaseExtractor
+import datetime
+
+# Import the base class from its new location
+from .base_extractor import BaseExtractor
 
 class JSONExtractor(BaseExtractor):
     """
@@ -34,23 +36,37 @@ class JSONExtractor(BaseExtractor):
         Extract data from a JSON file.
         
         Args:
-            file_path (str): Path to the JSON file
+            file_path (str): Path to the JSON file.
             
         Returns:
-            Dict[str, Any]: Extracted data in a standardized format
+            Dict[str, Any]: Extracted data (the raw JSON content).
+            
+        Raises:
+            ValueError: If the file is not valid JSON or cannot be read.
         """
         try:
-            # Read and parse the JSON file
-            with open(file_path, 'r') as file:
-                data = json.load(file)
+            # Open and read the JSON file
+            with open(file_path, 'r') as f:
+                data = json.load(f)
             
-            # Update metadata
+            # Update metadata specific to JSON extraction
             self.metadata["file_type"] = "json"
-            self.metadata["extracted_at"] = datetime.now()
-            
+            self.metadata["extracted_at"] = datetime.datetime.now().isoformat() # Record timestamp
+            # Optionally add more metadata, e.g., size or top-level keys
+            if isinstance(data, dict):
+                self.metadata["top_level_keys"] = list(data.keys())
+            elif isinstance(data, list):
+                self.metadata["is_list"] = True
+                self.metadata["list_length"] = len(data)
+                
             return data
             
+        except FileNotFoundError:
+            # Handle file not found specifically
+            raise FileNotFoundError(f"JSON file not found at: {file_path}")
         except json.JSONDecodeError as e:
-            raise ValueError(f"Error parsing JSON file: {str(e)}")
+            # Handle invalid JSON format
+            raise ValueError(f"Invalid JSON format in file '{file_path}': {str(e)}")
         except Exception as e:
-            raise ValueError(f"Error extracting data from JSON file: {str(e)}") 
+            # Catch other potential errors during file reading
+            raise ValueError(f"Error extracting data from JSON file '{file_path}': {str(e)}") 

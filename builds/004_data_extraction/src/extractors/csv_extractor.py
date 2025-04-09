@@ -26,7 +26,9 @@ The extractor will use Python's built-in csv module and pandas for efficient pro
 import csv
 import pandas as pd
 from typing import Dict, Any
-from ..main import BaseExtractor
+
+# Import the base class from its new location
+from .base_extractor import BaseExtractor
 
 class CSVExtractor(BaseExtractor):
     """
@@ -37,27 +39,43 @@ class CSVExtractor(BaseExtractor):
         Extract data from a CSV file.
         
         Args:
-            file_path (str): Path to the CSV file
+            file_path (str): Path to the CSV file.
             
         Returns:
-            Dict[str, Any]: Extracted data in a standardized format
+            Dict[str, Any]: Extracted data including headers, rows, and row count.
+            
+        Raises:
+            ValueError: If the file cannot be read or processed as CSV.
+            FileNotFoundError: If the CSV file does not exist.
         """
         try:
-            # Read the CSV file
+            # Read the CSV file using pandas
             df = pd.read_csv(file_path)
             
-            # Convert to dictionary format
+            # Convert DataFrame to a dictionary format
             data = {
-                "headers": df.columns.tolist(),
-                "rows": df.values.tolist(),
-                "row_count": len(df)
+                "headers": df.columns.tolist(),  # List of column names
+                "rows": df.values.tolist(),     # List of lists (rows)
+                "row_count": len(df)            # Number of data rows
             }
             
-            # Update metadata
+            # Update metadata specific to CSV extraction
             self.metadata["file_type"] = "csv"
-            self.metadata["extracted_at"] = pd.Timestamp.now()
+            self.metadata["extracted_at"] = pd.Timestamp.now().isoformat() # Record timestamp
+            self.metadata["columns"] = df.columns.tolist() # Add column names to metadata
+            self.metadata["shape"] = df.shape # Add DataFrame shape (rows, cols) to metadata
             
             return data
             
+        except FileNotFoundError:
+            # Handle file not found specifically
+            raise FileNotFoundError(f"CSV file not found at: {file_path}")
+        except pd.errors.EmptyDataError:
+            # Handle empty CSV file
+            raise ValueError(f"CSV file is empty: {file_path}")
+        except pd.errors.ParserError as e:
+            # Handle CSV parsing errors
+            raise ValueError(f"Error parsing CSV file '{file_path}': {str(e)}")
         except Exception as e:
-            raise ValueError(f"Error extracting data from CSV file: {str(e)}") 
+            # Catch other potential errors during file reading or processing
+            raise ValueError(f"Error extracting data from CSV file '{file_path}': {str(e)}") 

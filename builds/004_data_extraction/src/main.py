@@ -10,180 +10,202 @@ from typing import Dict, Any, Optional, Type, List
 from datetime import datetime
 import os
 from pathlib import Path
-from extractors.csv_extractor import CSVExtractor
-from extractors.excel_extractor import ExcelExtractor
-from extractors.json_extractor import JSONExtractor
+import argparse # Added for command-line arguments
+import time     # Added for timing execution
+import json # Added for JSON output
 
-class BaseExtractor(ABC):
-    """
-    Abstract base class for all data extractors.
-    Defines the common interface and shared functionality.
-    """
-    def __init__(self):
-        self.metadata = {}
+# Import the base class and specific extractors
+# Note: BaseExtractor is no longer defined here
+from .extractors.base_extractor import BaseExtractor # Import BaseExtractor from its new location
+from .extractors.csv_extractor import CSVExtractor
+from .extractors.json_extractor import JSONExtractor
+from .extractors.excel_extractor import ExcelExtractor # Assuming you have this
 
-    @staticmethod
-    def detect_file_type(file_path: str) -> Optional[str]:
-        """
-        Detect the file type based on the file extension.
+# Define supported file types and their corresponding extractor classes
+SUPPORTED_EXTRACTORS = {
+    "csv": CSVExtractor,
+    "json": JSONExtractor,
+    "xlsx": ExcelExtractor, # Map .xlsx to ExcelExtractor
+    "xls": ExcelExtractor   # Map .xls to ExcelExtractor
+}
+
+# --- Helper function to determine project root --- 
+def get_project_root() -> Path:
+    """Determines the project root directory (assuming src is one level down)."""
+    # Path to the current file (main.py)
+    current_file_path = Path(__file__).resolve()
+    # Path to the src directory
+    src_dir = current_file_path.parent
+    # Project root is the parent of src
+    return src_dir.parent
+
+def get_default_directories() -> tuple[Path, Path]:
+    """
+    Gets the default input and output directories.
+    Looks for input/output directories in the same folder as main.py.
+    """
+    # Path to the current file (main.py)
+    current_file_path = Path(__file__).resolve()
+    # Path to the src directory
+    src_dir = current_file_path.parent
+    
+    # Default directories are in the same folder as main.py
+    default_input_dir = src_dir / "input"
+    default_output_dir = src_dir / "output"
+    
+    return default_input_dir, default_output_dir
+
+def extract_data_from_file(file_path: Path) -> Dict[str, Any]: # Changed type hint to Path
+    """
+    Extracts data from a single file using the appropriate extractor.
+    
+    Args:
+        file_path (Path): The path to the input file.
         
-        Args:
-            file_path (str): Path to the file to detect type for
-            
-        Returns:
-            Optional[str]: The detected file type ('csv', 'excel', 'json') or None if not supported
-            
-        Raises:
-            ValueError: If the file type is not supported
-        """
-        # Get the file extension in lowercase
-        _, ext = os.path.splitext(file_path)
-        ext = ext.lower()
+    Returns:
+        Dict[str, Any]: A dictionary containing the extracted data and metadata.
         
-        # Map extensions to file types
-        file_types = {
-            '.csv': 'csv',
-            '.xlsx': 'excel',
-            '.xls': 'excel',
-            '.json': 'json'
+    Raises:
+        ValueError: If the file type is unsupported or if extraction fails.
+        FileNotFoundError: If the input file does not exist.
+    """
+    # Check if the file exists (Path object checks this implicitly often, but explicit is good)
+    if not file_path.is_file():
+        raise FileNotFoundError(f"Input file not found: {str(file_path)}")
+        
+    # Determine the file extension (lowercase, without dot)
+    file_extension = file_path.suffix.lower().lstrip('.')
+    
+    # Find the appropriate extractor class
+    extractor_class = SUPPORTED_EXTRACTORS.get(file_extension)
+    
+    # Check if the file type is supported
+    if not extractor_class:
+        raise ValueError(f"Unsupported file type: '.{file_extension}' for file '{file_path.name}'. Supported extensions: {list(SUPPORTED_EXTRACTORS.keys())}")
+        
+    # Instantiate the extractor
+    extractor = extractor_class()
+    
+    # Perform data extraction
+    try:
+        print(f"Extracting data from '{file_path.name}' using {extractor.__class__.__name__}...")
+        start_time = time.time()
+        # Pass the string representation of the path to the extractor if needed
+        extracted_data = extractor.extract_data(str(file_path)) 
+        end_time = time.time()
+        
+        # Combine extracted data and metadata
+        result = {
+            "data": extracted_data,
+            "metadata": extractor.get_metadata()
         }
         
-        # Return the file type if supported, otherwise raise error
-        if ext in file_types:
-            return file_types[ext]
-        else:
-            raise ValueError(f"File type not supported. Supported types are: {', '.join(file_types.values())}")
-
-    @abstractmethod
-    def extract_data(self, file_path: str) -> Dict[str, Any]:
-        """
-        Extract data from the given file.
-        Must be implemented by each specific extractor.
+        # Add extraction time and original filename to metadata
+        result["metadata"]["extraction_time_seconds"] = round(end_time - start_time, 4)
+        result["metadata"]["original_filename"] = file_path.name
         
-        Args:
-            file_path (str): Path to the file to extract data from
-            
-        Returns:
-            Dict[str, Any]: Extracted data
-        """
-        pass
-
-    def transform_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Transform the extracted data into a standardized format.
+        print(f"Extraction successful for '{file_path.name}' in {result['metadata']['extraction_time_seconds']:.4f} seconds.")
+        return result
         
-        Args:
-            data (Dict[str, Any]): Raw extracted data
-            
-        Returns:
-            Dict[str, Any]: Transformed data
-        """
-        self.metadata["transformed_at"] = datetime.now()
-        return data
+    except Exception as e:
+        # Propagate specific exceptions or catch general ones
+        print(f"Error during extraction from '{file_path.name}': {str(e)}")
+        # Re-raise to be caught in the main loop
+        raise ValueError(f"Failed to extract data from '{file_path.name}': {str(e)}") from e
 
-    def format_output(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Format the data for final output.
-        
-        Args:
-            data (Dict[str, Any]): Transformed data
-            
-        Returns:
-            Dict[str, Any]: Formatted output with metadata
-        """
-        return {
-            "data": data,
-            "metadata": self.metadata
-        }
-
-class ExtractorFactory:
+def main():
     """
-    Factory class for creating appropriate data extractors based on file type.
+    Main function to parse arguments, find files, run extraction, and save results.
+    Processes all supported files in an input directory and saves results to an output directory.
     """
-    # Map file types to their corresponding extractor classes
-    _extractor_classes = {
-        'csv': CSVExtractor,
-        'excel': ExcelExtractor,
-        'json': JSONExtractor
-    }
+    # Get default directories from the same folder as main.py
+    default_input_dir, default_output_dir = get_default_directories()
 
-    @classmethod
-    def create_extractor(cls, file_path: str) -> BaseExtractor:
-        """
-        Create an appropriate extractor based on the file type.
-        
-        Args:
-            file_path (str): Path to the file to extract data from
-            
-        Returns:
-            BaseExtractor: An instance of the appropriate extractor class
-            
-        Raises:
-            ValueError: If the file type is not supported
-        """
-        # Detect the file type
-        file_type = BaseExtractor.detect_file_type(file_path)
-        
-        # Get the appropriate extractor class
-        extractor_class = cls._extractor_classes.get(file_type)
-        
-        if extractor_class is None:
-            raise ValueError(f"No extractor found for file type: {file_type}")
-            
-        # Create and return an instance of the extractor
-        return extractor_class()
+    # Set up argument parser
+    parser = argparse.ArgumentParser(
+        description="Extract data from supported files in an input directory to an output directory."
+    )
+    parser.add_argument(
+        "-i", "--input_dir", 
+        type=Path, # Use Path type for easier handling
+        default=default_input_dir,
+        help=f"Path to the input directory (default: {default_input_dir})"
+    )
+    parser.add_argument(
+        "-o", "--output_dir", 
+        type=Path, 
+        default=default_output_dir,
+        help=f"Path to the output directory (default: {default_output_dir})"
+    )
+    
+    # Parse command-line arguments
+    args = parser.parse_args()
 
-    @classmethod
-    def scan_directory(cls, directory_path: str) -> List[Dict[str, Any]]:
-        """
-        Scan a directory for supported files and process them.
-        
-        Args:
-            directory_path (str): Path to the directory to scan
-            
-        Returns:
-            List[Dict[str, Any]]: List of processed data from all supported files
-            
-        Raises:
-            FileNotFoundError: If the directory does not exist
-        """
-        # Convert to Path object for better path handling
-        directory = Path(directory_path)
-        
-        if not directory.exists():
-            raise FileNotFoundError(f"Directory not found: {directory_path}")
-            
-        if not directory.is_dir():
-            raise NotADirectoryError(f"Path is not a directory: {directory_path}")
-            
-        results = []
-        
-        # Scan for supported files
-        for file_path in directory.glob("*"):
-            if file_path.is_file():
+    input_dir = args.input_dir.resolve() # Get absolute path
+    output_dir = args.output_dir.resolve()
+
+    # --- Input Directory Validation ---
+    if not input_dir.is_dir():
+        print(f"Error: Input directory not found or is not a directory: {input_dir}")
+        exit(1)
+
+    # --- Output Directory Creation ---
+    try:
+        output_dir.mkdir(parents=True, exist_ok=True) # Create output dir if it doesn't exist
+        print(f"Using input directory: {input_dir}")
+        print(f"Using output directory: {output_dir}")
+    except OSError as e:
+        print(f"Error: Could not create output directory '{output_dir}': {str(e)}")
+        exit(1)
+
+    # --- File Processing Loop ---
+    processed_files = 0
+    failed_files = 0
+    total_start_time = time.time()
+
+    print("\nStarting directory scan...")
+    # Iterate through all items in the input directory
+    for item_path in input_dir.iterdir():
+        # Process only files
+        if item_path.is_file():
+            # Check if the file extension is supported
+            file_extension = item_path.suffix.lower().lstrip('.')
+            if file_extension in SUPPORTED_EXTRACTORS:
                 try:
-                    # Try to detect file type
-                    file_type = BaseExtractor.detect_file_type(str(file_path))
+                    # Extract data from the file
+                    result = extract_data_from_file(item_path)
                     
-                    # Create appropriate extractor
-                    extractor = cls.create_extractor(str(file_path))
+                    # Construct the output file path (replace extension with .json)
+                    output_filename = item_path.stem + ".json"
+                    output_file_path = output_dir / output_filename
                     
-                    # Extract and process data
-                    raw_data = extractor.extract_data(str(file_path))
-                    transformed_data = extractor.transform_data(raw_data)
-                    formatted_data = extractor.format_output(transformed_data)
+                    # Convert the result to a JSON string
+                    # Use default=str for non-serializable types like datetime or numpy types
+                    output_json = json.dumps(result, indent=4, default=str)
                     
-                    # Add file information to metadata
-                    formatted_data["metadata"]["file_name"] = file_path.name
-                    formatted_data["metadata"]["file_path"] = str(file_path)
+                    # Save the output to the corresponding file
+                    with open(output_file_path, 'w') as f:
+                        f.write(output_json)
+                    print(f"  -> Output saved to: {output_file_path.name}")
+                    processed_files += 1
                     
-                    results.append(formatted_data)
-                    
-                except ValueError as e:
-                    # Skip unsupported file types
-                    print(f"Skipping unsupported file {file_path.name}: {str(e)}")
-                except Exception as e:
-                    # Log other errors but continue processing
-                    print(f"Error processing file {file_path.name}: {str(e)}")
-                    
-        return results 
+                except (FileNotFoundError, ValueError, Exception) as e:
+                    # Catch errors during extraction or saving for a specific file
+                    print(f"Failed to process file '{item_path.name}': {str(e)}")
+                    failed_files += 1
+            else:
+                # Inform about skipped files (optional)
+                # print(f"Skipping unsupported file: {item_path.name}")
+                pass # Silently skip unsupported files
+
+    # --- Summary --- 
+    total_end_time = time.time()
+    print("\n--- Extraction Summary ---")
+    print(f"Total time taken: {total_end_time - total_start_time:.2f} seconds")
+    print(f"Successfully processed files: {processed_files}")
+    print(f"Failed files: {failed_files}")
+    print(f"Results saved in: {output_dir}")
+
+# Entry point for the script
+if __name__ == "__main__":
+    main() 
