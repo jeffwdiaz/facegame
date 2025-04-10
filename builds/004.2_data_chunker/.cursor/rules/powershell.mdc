@@ -1,0 +1,65 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# PowerShell Command Guidelines
+
+### PowerShell-Specific Command Rules
+
+- **Never use Unix-style commands in PowerShell**:
+  - ❌ Avoid using `| cat` for output handling
+  - ❌ Avoid using `grep` (use `Select-String` instead)
+  - ❌ Avoid using `ls` (use `Get-ChildItem` instead)
+  - ❌ Avoid using `pwd` (use `Get-Location` instead)
+
+### Correct PowerShell Alternatives
+
+- ✅ Use `Out-Host` instead of `| cat` for console output
+- ✅ Use `Select-String` instead of `grep`
+- ✅ Use `Get-ChildItem` instead of `ls`
+- ✅ Use `Get-Location` instead of `pwd`
+- ✅ Use `Set-Location` instead of `cd`
+
+### Command Examples
+
+- **Incorrect (Unix-style)**:
+  ```powershell
+  git status | cat
+  ls -la
+  pwd
+  ```
+
+- **Correct (PowerShell)**:
+  ```powershell
+  git status
+  Get-ChildItem -Force
+  Get-Location
+  ```
+
+### Output Handling
+
+- Use PowerShell's native output handling:
+  - For simple output: `Write-Output` or direct command execution
+  - For formatted output: `Format-Table`, `Format-List`, etc.
+  - For pagination: `Out-Host -Paging` or `more`
+
+### Error Handling
+
+- Use PowerShell's error handling:
+  - `try/catch` blocks
+  - `$ErrorActionPreference`
+  - `-ErrorAction` parameter
+
+### Path Handling
+
+- Always use PowerShell's path handling:
+  - Use `Join-Path` for path construction
+  - Use `Resolve-Path` for path resolution
+  - Use `Split-Path` for path manipulation
+
+### Environment Variables
+
+- Use PowerShell's environment variable syntax:
+  - `$env:VARIABLE_NAME` instead of `$VARIABLE_NAME`
+  - `$env:Path` instead of `$PATH` 
