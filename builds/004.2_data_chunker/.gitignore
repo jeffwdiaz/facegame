@@ -1,0 +1,7 @@
+# Folders
+data_chunker/input/*
+data_chunker/output/*
+
+# Virtual Environment
+.venv/
+

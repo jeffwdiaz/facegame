@@ -1,3 +1,7 @@
+# Folders
+src/input/*
+src/output/*
+
 # Virtual Environment
 .venv/
 venv/
