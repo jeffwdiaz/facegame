@@ -1,21 +1,3 @@
 # Folders
+pursuit_docs/
 
-# Large data files
-builds/004.1_data_extraction/src/input/archive/Environment_Emissions_intensities_E_All_Data/*.csv
-builds/004.4_food_database/data/processed/Environment_Emissions_intensities_E_All_Data.csv
-builds/004.9_food_data_viz/data/raw/owid-co2-data.csv
-builds/004.1_data_extraction/src/input/archive/owid-co2-data.csv
-pursuit_docs/datasets/owid-co2-data.csv
-
-# Virtual environment binaries and libraries
-**/venv/**/*.pyd
-**/venv/**/*.dll
-**/venv/**/numpy.libs/
-**/venv/**/scipy.libs/
-**/.venv/**/*.pyd
-**/.venv/**/*.dll
-**/.venv/**/numpy.libs/
-**/.venv/**/scipy.libs/
-
-# Node modules
-**/node_modules/
