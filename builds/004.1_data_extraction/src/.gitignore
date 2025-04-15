@@ -1,4 +1,6 @@
 # Ignore large data files
 input/*
 output/*
-input/archive/Environment_Emissions_intensities_E_All_Data_(Normalized)/Environment_Emissions_intensities_E_All_Data_(Normalized).csv
+input/archive/Environment_Emissions_intensities_E_All_Data/*.csv
+input/archive/Environment_Emissions_intensities_E_All_Data_*/*.csv
+input/archive/owid-co2-data.csv
