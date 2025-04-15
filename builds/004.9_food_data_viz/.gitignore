@@ -48,7 +48,5 @@ data/food_environment.db
 Thumbs.db
 
 # Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
+data/*
 !data/processed/.gitkeep 

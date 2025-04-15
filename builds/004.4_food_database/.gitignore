@@ -24,8 +24,8 @@ build/
 out/
 
 # Data files
-data/processed/**/*.json
-!data/processed/**/schema.json  # Keep schema files
+data/*
+!data/processed/.gitkeep
 
 # Logs
 logs/
