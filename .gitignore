@@ -1,3 +1,47 @@
 # Folders
 pursuit_docs/
 
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.env/
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# Archives and large files
+*.zip
+*.gz
+*.tar
+*.rar
+*.7z
+
+# Data files
+builds/004.1_data_extraction/src/input/archive/
+builds/004.1_data_extraction/src/input/*.csv
+builds/004.1_data_extraction/src/output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Misc
+.DS_Store
+Thumbs.db
+
