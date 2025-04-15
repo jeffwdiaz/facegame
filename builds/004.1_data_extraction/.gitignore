@@ -1,6 +1,6 @@
 # Folders
-src/input/*
-src/output/*
+src/input
+src/output
 
 # Virtual Environment
 .venv/
