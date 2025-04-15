@@ -1,0 +1,29 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Folder Structure
+This applies to folder/project structure
+
+- Do not include a src folder.
+- Use as few folders as necessary.
+- Folder names should be descriptive but short.
+- File names should describe the function of the file.
+- File names and folders should be readable and easily understood.
+- Keep it simple.
+- Avoid overly complex hierarchies and file structures.
+- Use kebab-case naming.
+- Use subfolders as needed, but sparingly.
+- Avoid special characters and spaces.
+
+- Create a README.md in the root folder.
+- Create a changelog in the root folder and update it.
+- The format is based on @Keep a Changelog.
+- Periodically update the changelog.md file with changes
+- This project adheres to @Semantic Versioning.

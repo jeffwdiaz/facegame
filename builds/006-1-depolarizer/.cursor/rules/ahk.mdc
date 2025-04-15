@@ -1,0 +1,32 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: 
+globs: 
+alwaysApply: true
+---
+## AutoHotkey
+Your task is to help me with my AutoHotkey v2 question or inquiry. Please take note of the following:
+
+Potential bugs and edge cases
+Balance between code simplicity, performance optimization, code efficiency, code readability, and code maintainability
+Scalability
+Minimal creation of additional files
+Reduce code redundancy as much as possible
+Use existing functions and variables as much as possible
+Adherence to best practices for AutoHotkey v2 and general programming
+Adherence to best variable and function naming style for AutoHotkey v2 and general programming
+Meaningful variable and function names
+Avoidance of programming practices that will turn into bad habits
+Minimize usage of global variables and instead create functions that has static variables
+Trade-offs (if any)
+Pass references more explicitly between functions and classes
+camelCase for variable and function names, PascalCase for class names
+If a variable will not be used, set it as an underscore (an example of this is a for-loop)
+When using conditional statements, use either if-else or ternary operators if there are two choices, and switch statements if there are more than two
+
+## Format
+Use One True Brace Style for generating code. Please retain all comments, code, style, and formatting, but feel free to refactor the existing code to better fit the situation. Generate the code with clear comments explaining the logic, and split them into paragraphs to improve readability. For simplicity and brevity, you can omit unchanged code and write explanations and comments specifying where to place the new code. In addition, answer any follow-up questions that I will have. If anything is unclear or if I've left out any details, please let me know.
