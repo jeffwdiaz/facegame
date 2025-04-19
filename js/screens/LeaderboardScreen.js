@@ -23,7 +23,7 @@ export default class LeaderboardScreen extends Screen {
             </div>
 
             <div class="leaderboard-list" id="leaderboardList">
-                <!-- Scores will be inserted here -->
+                <div class="loading">Loading scores...</div>
             </div>
 
             <div class="leaderboard-controls">
@@ -67,30 +67,46 @@ export default class LeaderboardScreen extends Screen {
         this.updateLeaderboard();
     }
 
-    updateLeaderboard() {
-        const scores = leaderboardManager.getScores(this.currentMode);
-        
-        if (scores.length === 0) {
+    async updateLeaderboard() {
+        // Show loading state
+        this.elements.leaderboardList.innerHTML = `
+            <div class="loading">Loading scores...</div>
+        `;
+
+        try {
+            // Wait for scores to load
+            await leaderboardManager.loadScores(this.currentMode);
+            const scores = leaderboardManager.getScores(this.currentMode);
+            
+            if (scores.length === 0) {
+                this.elements.leaderboardList.innerHTML = `
+                    <div class="empty-state">
+                        No scores yet. Start playing to set some records!
+                    </div>
+                `;
+                return;
+            }
+
+            this.elements.leaderboardList.innerHTML = scores
+                .map((score, index) => `
+                    <div class="leaderboard-item">
+                        <div class="rank">#${index + 1}</div>
+                        <div class="player-info">
+                            <div class="player-name">${score.name || 'Anonymous'}</div>
+                            <div class="date">${this.formatDate(score.date)}</div>
+                        </div>
+                        <div class="player-score">${score.score}</div>
+                    </div>
+                `)
+                .join('');
+        } catch (error) {
+            console.error('Error loading leaderboard:', error);
             this.elements.leaderboardList.innerHTML = `
-                <div class="empty-state">
-                    No scores yet. Start playing to set some records!
+                <div class="error-state">
+                    Failed to load scores. Please try again later.
                 </div>
             `;
-            return;
         }
-
-        this.elements.leaderboardList.innerHTML = scores
-            .map((score, index) => `
-                <div class="leaderboard-item">
-                    <div class="rank">#${index + 1}</div>
-                    <div class="player-info">
-                        <div class="player-name">${score.name || 'Anonymous'}</div>
-                        <div class="date">${this.formatDate(score.date)}</div>
-                    </div>
-                    <div class="player-score">${score.score}</div>
-                </div>
-            `)
-            .join('');
     }
 
     formatDate(dateString) {
@@ -102,8 +118,8 @@ export default class LeaderboardScreen extends Screen {
         });
     }
 
-    show() {
+    async show() {
         super.show();
-        this.updateLeaderboard();
+        await this.updateLeaderboard();
     }
 } 

@@ -1,30 +1,80 @@
 class LeaderboardManager {
     constructor() {
-        this.easyModeScores = this.loadScores('easy');
-        this.hardModeScores = this.loadScores('hard');
+        this.easyModeScores = [];
+        this.hardModeScores = [];
+        this.loadScores('easy');
+        this.loadScores('hard');
     }
 
-    loadScores(mode) {
-        const scores = localStorage.getItem(`leaderboard_${mode}`);
-        return scores ? JSON.parse(scores) : [];
+    async loadScores(mode) {
+        try {
+            // Try to load from API first
+            const response = await fetch(`/.netlify/functions/scores?mode=${mode}`);
+            if (response.ok) {
+                const scores = await response.json();
+                if (mode === 'easy') {
+                    this.easyModeScores = scores;
+                } else {
+                    this.hardModeScores = scores;
+                }
+                // Update cache
+                localStorage.setItem(`leaderboard_${mode}`, JSON.stringify(scores));
+                return;
+            }
+        } catch (error) {
+            console.warn('Failed to load scores from API, falling back to cache:', error);
+        }
+
+        // Fall back to localStorage if API fails
+        const cachedScores = localStorage.getItem(`leaderboard_${mode}`);
+        const scores = cachedScores ? JSON.parse(cachedScores) : [];
+        if (mode === 'easy') {
+            this.easyModeScores = scores;
+        } else {
+            this.hardModeScores = scores;
+        }
     }
 
-    saveScores(mode) {
-        const scores = mode === 'easy' ? this.easyModeScores : this.hardModeScores;
+    async saveScores(mode, scores) {
+        // Update local cache immediately
         localStorage.setItem(`leaderboard_${mode}`, JSON.stringify(scores));
     }
 
-    addScore(mode, name, score) {
+    async addScore(mode, name, score) {
+        try {
+            // Try to save to API
+            const response = await fetch('/.netlify/functions/scores', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mode, name, score })
+            });
+
+            if (response.ok) {
+                const updatedScores = await response.json();
+                if (mode === 'easy') {
+                    this.easyModeScores = updatedScores;
+                } else {
+                    this.hardModeScores = updatedScores;
+                }
+                // Update cache
+                this.saveScores(mode, updatedScores);
+                return;
+            }
+        } catch (error) {
+            console.warn('Failed to save score to API, using local storage only:', error);
+        }
+
+        // Fall back to local storage if API fails
         const scores = mode === 'easy' ? this.easyModeScores : this.hardModeScores;
         
-        // Add new score
         scores.push({
             name,
             score,
             date: new Date().toISOString()
         });
 
-        // Sort by score (descending) and date (most recent first)
         scores.sort((a, b) => {
             if (b.score !== a.score) {
                 return b.score - a.score;
@@ -32,26 +82,37 @@ class LeaderboardManager {
             return new Date(b.date) - new Date(a.date);
         });
 
-        // Keep only top 10 scores
         if (scores.length > 10) {
             scores.length = 10;
         }
 
-        // Save to localStorage
-        this.saveScores(mode);
+        this.saveScores(mode, scores);
     }
 
     getScores(mode) {
         return mode === 'easy' ? this.easyModeScores : this.hardModeScores;
     }
 
-    clearScores(mode) {
+    async clearScores(mode) {
         if (mode === 'easy') {
             this.easyModeScores = [];
         } else {
             this.hardModeScores = [];
         }
-        this.saveScores(mode);
+        this.saveScores(mode, []);
+        
+        try {
+            // Try to clear on API
+            await fetch('/.netlify/functions/scores', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mode, clear: true })
+            });
+        } catch (error) {
+            console.warn('Failed to clear scores on API:', error);
+        }
     }
 
     isHighScore(mode, score) {
