@@ -1,0 +1,51 @@
+/* Name Entry Screen Styles */
+.name-entry-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+}
+
+.name-entry-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.name-entry-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: var(--text-color);
+}
+
+.name-entry-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.name-input {
+    padding: 1rem;
+    font-size: 1.2rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    text-align: center;
+}
+
+.name-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.2);
+}
+
+.name-entry-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+} 

@@ -1,0 +1,47 @@
+# Large Files
+images_archive/**
+
+# Dependencies and Package Managers
+node_modules/
+.pnp
+.pnp.js
+.npm
+.yarn-integrity
+*.tgz
+
+# Environment and Configuration
+.env*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build and Output
+/build/
+/dist/
+.next/
+out/
+.cache/
+.parcel-cache/
+
+# Testing and Coverage
+/coverage/
+
+# Logs and Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.node_repl_history
+
+# IDE and Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.eslintcache
+
+# Deployment and Services
+.serverless/
+.netlify/ 

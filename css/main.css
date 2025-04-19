@@ -1,0 +1,116 @@
+/* Import screen-specific styles */
+@import 'screens/start.css';
+@import 'screens/game.css';
+@import 'screens/leaderboard.css';
+@import 'animations.css';
+
+/* Reset and Base Styles */
+:root {
+    /* Main Colors */
+    --color-primary: #222;
+    --color-primary-dark: #0056b3;
+    --color-secondary: #6c757d;
+    --color-secondary-dark: #545b62;
+    --color-secondary-disabled: #a9a9a9;
+    
+    /* Background Colors */
+    --color-background: #f5f5f5;
+    --color-surface: #fff;
+    --color-surface-alt: #f8f9fa;
+    
+    /* Text Colors */
+    --color-text: #333;
+    --color-text-light: #666;
+    --color-text-white: #fff;
+    
+    /* Status Colors */
+    --color-error: #ff0000;
+    
+    /* Overlay Colors */
+    --color-overlay: rgba(0, 0, 0, 0.5);
+    --color-overlay-light: rgba(255, 255, 255, 0.9);
+    
+    /* Fonts */
+    --font-game: 'Bungee', cursive;
+    --font-body: 'Lexend', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    line-height: 1.6;
+    background-color: var(--color-background);
+    color: var(--color-text);
+    font-weight: 400;
+}
+
+/* Game Container */
+.game-container {
+    background-color: var(--color-background);
+    max-width: 100%;
+    width: 500px;
+    height: 100vh;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Screen Base Styles */
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Button Styles */
+.btn-primary, .btn-secondary {
+    padding: 0.5rem 1rem;
+    border: none;
+    font-family: var(--font-game);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-white);
+}
+
+.btn-secondary {
+    color: var(--color-primary);
+    background-color: transparent;
+    border: 2px solid var(--color-primary);
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    opacity: 0.9;
+}
+
+.btn-primary.active, .btn-secondary.active {
+    transform: scale(1);
+}
+
+.btn-primary.active {
+    background-color: var(--color-primary-dark);
+}
+
+.btn-secondary.active {
+    background-color: var(--color-primary);
+    color: var(--color-text-white);
+}
+
+.btn-primary:disabled, .btn-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+} 

@@ -1,0 +1,102 @@
+/* 
+ * animations.css
+ * Contains all animation-related styles for the face game
+ * 
+ * Key animations:
+ * - Swipe animations (up/down)
+ * - Image transitions
+ * - Wrong answer feedback
+ * - Loading indicators
+ */
+
+/* Base image transition properties */
+.face-image {
+    /* Smooth transition for all transform properties */
+    transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Swipe up animation */
+.face-container.swiping-up .face-image {
+    transform: translateY(-150%);
+    transition-duration: 1s;
+}
+
+/* Swipe down animation */
+.face-container.swiping-down .face-image {
+    transform: translateY(150%);
+    transition-duration: 1s;
+}
+
+/* New image entering animations */
+.face-container.swiping-up .face-image.next {
+    transform: translateY(-150%);
+    transition-duration: 1s;
+}
+
+.face-container.swiping-down .face-image.next {
+    transform: translateY(150%);
+    transition-duration: 1s;
+}
+
+/* Wrong answer feedback animation */
+.wrong-message {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-game);
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--color-error);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.wrong-message.show {
+    opacity: 1;
+}
+
+/* Loading indicator animations */
+.loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-game);
+    font-size: 1.2rem;
+    color: var(--color-text);
+    z-index: 2;
+}
+
+/* Progress indicator animations */
+.progress-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--color-overlay);
+    color: var(--color-text-white);
+    padding: 10px 20px;
+    font-family: var(--font-game);
+    font-size: 16px;
+    z-index: 1000;
+    display: none;
+}
+
+.progress-indicator.show {
+    display: block;
+}
+
+/* Cursor animations for mouse interactions */
+.face-container {
+    cursor: grab;
+}
+
+.face-container:active {
+    cursor: grabbing;
+} 
