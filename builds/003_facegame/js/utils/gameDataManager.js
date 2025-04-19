@@ -12,6 +12,9 @@ class GameDataManager {
     async loadFaces() {
         try {
             const response = await fetch('data.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             this.allFaces = data.people; // Extract the people array
             this.resetGame();
