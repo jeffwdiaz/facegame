@@ -48,4 +48,6 @@ Thumbs.db
 
 # Deployment and Services
 .serverless/
-.netlify/ 
+.netlify/
+# Google Cloud Service Account Key (DO NOT COMMIT)
+service-account.json

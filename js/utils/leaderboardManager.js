@@ -9,7 +9,7 @@ class LeaderboardManager {
     async loadScores(mode) {
         try {
             // Try to load from API first
-            const response = await fetch(`/.netlify/functions/scores?mode=${mode}`);
+            const response = await fetch(`/api/scores?mode=${mode}`);
             if (response.ok) {
                 const scores = await response.json();
                 if (mode === 'easy') {
@@ -43,7 +43,7 @@ class LeaderboardManager {
     async addScore(mode, name, score) {
         try {
             // Try to save to API
-            const response = await fetch('/.netlify/functions/scores', {
+            const response = await fetch('/api/scores', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -103,12 +103,12 @@ class LeaderboardManager {
         
         try {
             // Try to clear on API
-            await fetch('/.netlify/functions/scores', {
+            await fetch('/api/scores/clear', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ mode, clear: true })
+                body: JSON.stringify({ mode })
             });
         } catch (error) {
             console.warn('Failed to clear scores on API:', error);

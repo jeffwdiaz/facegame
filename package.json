@@ -2,14 +2,17 @@
   "name": "facegame",
   "version": "1.0.0",
   "description": "A face memory game",
-  "main": "index.html",
+  "main": "server/server.js",
   "scripts": {
-    "start": "netlify dev"
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js"
   },
   "dependencies": {
-    "@netlify/blobs": "^6.3.1"
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "googleapis": "^148.0.0"
   },
   "devDependencies": {
-    "netlify-cli": "^17.10.1"
+    "nodemon": "^3.0.2"
   }
-} 
+}
