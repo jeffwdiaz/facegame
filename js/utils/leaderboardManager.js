@@ -9,7 +9,7 @@ class LeaderboardManager {
     async loadScores(mode) {
         try {
             // Try to load from API first
-            const response = await fetch(`/api/scores?mode=${mode}`);
+            const response = await fetch(`/.netlify/functions/scores?mode=${mode}`);
             if (response.ok) {
                 const scores = await response.json();
                 if (mode === 'easy') {
@@ -43,7 +43,7 @@ class LeaderboardManager {
     async addScore(mode, name, score) {
         try {
             // Try to save to API
-            const response = await fetch('/api/scores', {
+            const response = await fetch('/.netlify/functions/scores', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -103,7 +103,7 @@ class LeaderboardManager {
         
         try {
             // Try to clear on API
-            await fetch('/api/scores/clear', {
+            await fetch('/.netlify/functions/scores/clear', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
