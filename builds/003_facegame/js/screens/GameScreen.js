@@ -9,6 +9,11 @@ export default class GameScreen extends Screen {
         super('game-screen');
         this.currentPair = null;
         this.isPanning = false;
+        // Preload audio for correct and incorrect answers
+        // correct.wav: played when the answer is correct
+        // incorrect.wav: played when the answer is wrong
+        this.correctAudio = new Audio('audio/correct.wav');
+        this.incorrectAudio = new Audio('audio/incorrect.wav');
         this.render();
         this.setupEventListeners();
     }
@@ -103,8 +108,11 @@ export default class GameScreen extends Screen {
                 currentScore: gameState.score,
                 velocityY
             });
-            
+
+            // Play correct or incorrect sound based on answer
             if (isCorrect) {
+                this.correctAudio.currentTime = 0;
+                this.correctAudio.play();
                 gameState.updateScore(2); // Reward for correct answer
                 this.updateScore();
                 const isGameComplete = gameDataManager.handleAnswer(true);
@@ -114,6 +122,8 @@ export default class GameScreen extends Screen {
                     this.loadNextFace();
                 }
             } else {
+                this.incorrectAudio.currentTime = 0;
+                this.incorrectAudio.play();
                 gameState.updateScore(-1); // Penalty for wrong answer
                 this.updateScore();
                 gameDataManager.handleAnswer(false);
