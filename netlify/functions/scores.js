@@ -1,10 +1,16 @@
 // Netlify Function: scores.js
 // Provides GET and POST endpoints for leaderboard using Google Sheets as backend
-// Requires service-account.json in project root and googleapis as a dependency
+// Requires Google service account credentials via environment variables
 
 const { google } = require('googleapis');
-const path = require('path');
-const key = require(path.join(__dirname, '../../service-account.json'));
+
+// Load credentials from environment variables (set in Netlify dashboard)
+const key = {
+  client_email: process.env.GOOGLE_CLIENT_EMAIL,
+  private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+  project_id: process.env.GOOGLE_PROJECT_ID,
+  client_id: process.env.GOOGLE_CLIENT_ID,
+};
 
 const sheetId = '1uQ9S0ridEh0dFVMnO1sZEQ34jGU-ww89IiQEeP_Ahyw';
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
