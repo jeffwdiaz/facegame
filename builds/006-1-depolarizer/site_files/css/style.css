@@ -1,0 +1,263 @@
+/* =============================== */
+/* Theme Variables                 */
+/* =============================== */
+:root {
+    /* Brand & UI Color Palette */
+    --primary: #000000;      /* Primary brand color (black) */
+    --primary50: color-mix(in srgb, var(--primary), #fff 50%); /* 50% lighter version of primary (black) */
+    --secondary: #424242;    /* Secondary color (dark gray) */
+    --accent: #05ffa8;       /* Accent color (greenish teal) */
+    --background: #fff;      /* Main background color (white) */
+    --highlight: #e53935;    /* Highlight color (red) */
+    --text: #000000;         /* Primary text color (black) */
+
+    /* UI Component Colors (mapped from palette) */
+    --sidebar-bg: var(--primary);            /* Sidebar background uses primary */
+    --sidebar-text: #fff;                    /* Sidebar text: white for contrast */
+    --sidebar-selected-bg: #fff;             /* Selected sidebar item background: white */
+    --sidebar-selected-text: var(--primary); /* Selected sidebar item text: primary */
+    --main-bg: var(--background);            /* Main area background: white */
+    --main-text: var(--text);                /* Main area text: black */
+
+    /* Other variables */
+    --font-family: 'Lexend', 'Inter', Arial, sans-serif; /* Primary font stack (Lexend first) */
+}
+
+/* =============================== */
+/* Reset & Base Styles             */
+/* =============================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+html, body {
+    width: 100vw;
+    height: 100vh;
+    background: var(--main-bg);
+    color: var(--main-text);
+    font-family: var(--font-family);
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* =============================== */
+/* Flex Layout for Sidebar + Main  */
+/* =============================== */
+.main-flex-layout {
+    display: flex;
+    width: 100vw;
+    min-height: 100vh;
+}
+
+/* =============================== */
+/* Sidebar Styles                  */
+/* =============================== */
+.sidebar {
+    /* Sidebar fills all space left of main content and grows with window width */
+    flex: 1 1 0;
+    /* Removed max-width so sidebar is fully fluid */
+    min-width: 180px;
+    width: auto;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding-top: 260px;
+    height: 100vh;
+    position: relative;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 10;
+}
+.sidebar nav ul {
+    list-style: none;
+    width: 100%;
+    padding: 0;
+    text-align: right; /* Align inline-block children to the right */
+}
+.sidebar nav ul li {
+    font-size: 1.4rem;
+    font-weight: bold;
+    margin: 0px 0;
+    padding: 6px 0px 6px 0;
+    transition: background 0.2s, color 0.2s;
+    cursor: pointer;
+    text-align: right;
+    display: block; /* Ensure default is block */
+}
+.sidebar nav ul li.selected {
+    background: var(--sidebar-selected-bg);
+    color: var(--sidebar-selected-text);
+    border-radius: 2px;
+    margin: 6px 0;
+    padding-right: 12px;
+    padding-left: 12px;
+    display: inline-block; /* Shrink box to fit text + padding */
+}
+
+/* =============================== */
+/* Right Sidebar Styles            */
+/* =============================== */
+.sidebar-right {
+    left: auto;
+    right: 0;
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    width: 220px;
+    min-width: 180px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
+    /* No content inside, so no flex, no padding needed */
+}
+
+/* =============================== */
+/* Main Content Styles             */
+/* =============================== */
+.main-content {
+    /* Center main content, max width 900px */
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 50px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    flex-shrink: 0;
+    align-items: stretch;
+}
+
+.centered-article {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.header {
+    text-align: center;
+}
+
+.header-description {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.url-input-section {
+    display: flex;
+    justify-content: center;
+    margin: 24px 0 40px 0;
+}
+
+.article-section {
+    margin: 0 auto;
+    max-width: 750px;
+}
+
+/* =============================== */
+/* Header Title Styles             */
+/* =============================== */
+.header h1 {
+    font-size: 4rem;
+    font-weight: 900;
+    letter-spacing: -2px;
+    margin-bottom: 0;
+    line-height: 1.1;
+}
+
+/* =============================== */
+/* URL Input Styles                */
+/* =============================== */
+.url-input-section .url-input {
+    outline: 2px solid var(--primary); /* Use primary color for outline */
+    border: none; /* Remove border */
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    transition: outline-color 0.2s;
+}
+.url-input-section .url-input:focus {
+    outline: 2px solid var(--primary);
+}
+.url-input {
+    width: 520px;
+    max-width: 100%;
+    border: none; /* Remove border */
+    border-radius: 2px;
+    font-size: 1.1rem;
+    font-family: var(--font-family);
+    color: var(--main-text);
+    background: var(--background);
+}
+
+/* =============================== */
+/* Input Placeholder Styles        */
+/* =============================== */
+.url-input::placeholder {
+    color: var(--primary50); /* Use 50% lighter primary for placeholder text */
+    opacity: 1;
+    font-style: italic; /* Italicize placeholder text */
+}
+
+/* =============================== */
+/* Article Section Styles          */
+/* =============================== */
+.article-section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    margin-top: 0;
+}
+.article-meta {
+    color: var(--meta-color);
+    font-size: 1rem;
+    margin-bottom: 18px;
+}
+.article-body {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+.article-body .highlight {
+    color: var(--highlight);
+    font-weight: 500;
+}
+
+/* =============================== */
+/* Polarizing Language Highlight   */
+/* =============================== */
+.polarizing-language {
+    font-weight: bold;
+    color: var(--highlight); /* Use theme red for consistency */
+}
+
+/* =============================== */
+/* Utilities                       */
+/* =============================== */
+@media (max-width: 900px) {
+    .main-content {
+        padding: 32px 10px;
+    }
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .header-description {
+        margin-left: 0;
+        margin-top: 18px;
+    }
+    .sidebar {
+        width: 120px;
+        min-width: 80px;
+        padding-top: 64px;
+    }
+}
