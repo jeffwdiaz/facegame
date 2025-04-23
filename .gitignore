@@ -1,5 +1,5 @@
 # Folders
-pursuit_docs/
+pursuit_docs/**
 
 # Node.js
 node_modules/
